@@ -1,6 +1,7 @@
 # Ignore environment variables
 .env
-# Logs
+
+# Existing ignores
 logs
 *.log
 npm-debug.log*
