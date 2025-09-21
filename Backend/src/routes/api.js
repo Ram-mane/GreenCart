@@ -1,22 +1,25 @@
-import { Router } from 'express';
+const { Router } = require('express');
 const router = Router();
 
-import { list, create } from '../controllers/driverController';
-import { list as _list, create as _create } from '../controllers/routeController';
-import { list as __list, create as __create } from '../controllers/orderController';
-import { runSimulation, listSimulations, getSimulationById } from '../controllers/simulationController';
+const driverController = require('../controllers/driverController');
+const routeController = require('../controllers/routeController');
+const orderController = require('../controllers/orderController');
+const simulationController = require('../controllers/simulationController');
 
-router.get('/drivers', list);
-router.post('/drivers', create);
 
-router.get('/routes', _list);
-router.post('/routes', _create);
+router.get('/drivers', driverController.list);
+router.post('/drivers', driverController.create);
 
-router.get('/orders', __list);
-router.post('/orders', __create);
+router.get('/routes', routeController.list);
+router.post('/routes', routeController.create);
 
-router.post('/simulate', runSimulation);
-router.get('/simulations', listSimulations);
-router.get('/simulations/:id', getSimulationById);
+router.get('/orders', orderController.list);
+router.post('/orders', orderController.create);
 
-export default router;
+router.post('/simulate', simulationController.runSimulation);
+router.get('/simulations', simulationController.listSimulations);
+if (simulationController.getSimulationById) {
+	router.get('/simulations/:id', simulationController.getSimulationById);
+}
+
+module.exports = router;

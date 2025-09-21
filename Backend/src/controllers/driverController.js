@@ -1,12 +1,14 @@
-import Driver, { find } from '../models/Driver';
+const Driver = require('../models/Driver');
 
-export async function list(req, res) {
-  const drivers = await find();
+async function list(req, res) {
+  const drivers = await Driver.find();
   res.json(drivers);
 }
 
-export async function create(req, res) {
+async function create(req, res) {
   const d = new Driver(req.body);
   await d.save();
   res.status(201).json(d);
 }
+
+module.exports = { list, create };

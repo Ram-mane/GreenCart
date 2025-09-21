@@ -1,6 +1,6 @@
-import { find } from '../models/Driver';
-import { find as _find } from '../models/Route';
-import { find as __find } from '../models/Order';
+const Driver = require('../models/Driver');
+const Route = require('../models/Route');
+const Order = require('../models/Order');
 
 /**
  * Simulation rules implemented:
@@ -36,9 +36,9 @@ function computeOrderFields(order, route, driver) {
 async function simulate({ numDrivers = 3, routeStartTime = "09:00", maxHoursPerDriver = 8 }) {
   // 1) load orders, routes, drivers
   const [orders, routes, driversAll] = await Promise.all([
-    __find().lean(),
-    _find().lean(),
-    find().lean()
+    Order.find().lean(),
+    Route.find().lean(),
+    Driver.find().lean()
   ]);
 
   if (!orders.length) throw new Error('No orders in DB. Run seed script or POST /orders');
@@ -153,4 +153,4 @@ async function simulate({ numDrivers = 3, routeStartTime = "09:00", maxHoursPerD
   };
 }
 
-export default { simulate };
+module.exports = { simulate };

@@ -1,7 +1,7 @@
-import { simulate } from '../services/simulationService';
-import SimulationResult, { find, findById } from '../models/SimulationResult';
+const { simulate } = require('../services/simulationService');
+const SimulationResult = require('../models/SimulationResult');
 
-export async function runSimulation(req, res) {
+async function runSimulation(req, res) {
   try {
     const input = req.body;
     const result = await simulate(input);
@@ -24,14 +24,16 @@ export async function runSimulation(req, res) {
   }
 }
 
-export async function listSimulations(req, res) {
-  const sims = await find().sort({ createdAt: -1 }).limit(20);
+async function listSimulations(req, res) {
+  const sims = await SimulationResult.find().sort({ createdAt: -1 }).limit(20);
   res.json(sims);
 }
 
-export async function getSimulationById(req, res) {
+async function getSimulationById(req, res) {
   const id = req.params.id;
-  const sim = await findById(id);
+  const sim = await SimulationResult.findById(id);
   if (!sim) return res.status(404).json({ error: 'Not found' });
   res.json(sim);
 }
+
+module.exports = { runSimulation, listSimulations, getSimulationById };

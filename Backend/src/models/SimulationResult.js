@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+const { Schema, model } = require('mongoose');
 
 const SimulationResultSchema = new Schema({
   input: { type: Object },
@@ -6,4 +6,4 @@ const SimulationResultSchema = new Schema({
   KPIs: { type: Object }
 }, { timestamps: true });
 
-export default model('SimulationResult', SimulationResultSchema);
+module.exports = model('SimulationResult', SimulationResultSchema);
