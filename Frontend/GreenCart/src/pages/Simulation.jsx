@@ -3,6 +3,25 @@ import api from '../api/apiClient'
 import OrdersTable from '../components/OrdersTable'
 import { toCurrency } from '../utils/format'
 
+const styles = {
+  container: { display: 'flex', flexDirection: 'column', gap: '1.5rem' },
+  grid: { display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' },
+  gridMd: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' },
+  card: { background: '#fff', borderRadius: '0.5rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  label: { fontSize: '0.875rem', color: '#4B5563' },
+  input: { marginTop: '0.25rem', width: '80%', border: '1px solid #d1d5db', borderRadius: '0.375rem', padding: '0.5rem 0.75rem' },
+  button: { padding: '0.5rem 1rem', background: '#2563eb', color: '#fff', borderRadius: '0.375rem', boxShadow: '0 1px 2px rgba(0,0,0,0.04)', border: 'none', cursor: 'pointer' },
+  buttonDisabled: { opacity: 0.5, cursor: 'not-allowed' },
+  buttonReset: { padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', background: '#fff', cursor: 'pointer' },
+  summaryLabel: { fontSize: '0.875rem', color: '#4B5563' },
+  summaryValue: { marginTop: '0.75rem', fontSize: '2rem', fontWeight: 600 },
+  summarySub: { fontSize: '0.75rem', color: '#6B7280', marginTop: '0.25rem' },
+  summaryOnTime: { marginTop: '0.75rem', fontSize: '1rem', fontWeight: 500 },
+  error: { marginTop: '0.75rem', fontSize: '0.875rem', color: '#dc2626' },
+  flex: { display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1rem' },
+  simId: { fontSize: '0.875rem', color: '#6B7280' }
+}
+
 export default function Simulation() {
   const [numDrivers, setNumDrivers] = useState(3)
   const [routeStartTime, setRouteStartTime] = useState('09:00')
@@ -36,42 +55,51 @@ export default function Simulation() {
   const late = total - onTime
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="card md:col-span-2">
-          <div className="text-lg font-semibold">Run Simulation</div>
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div style={styles.container}>
+      <div style={styles.gridMd}>
+        <div style={styles.card}>
+          <div style={{ fontSize: '1.125rem', fontWeight: 600 }}>Run Simulation</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginTop: '0.75rem' }}>
             <div>
-              <label className="text-sm text-gray-600">Num drivers</label>
-              <input type="number" min="1" value={numDrivers} onChange={e => setNumDrivers(e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" />
+              <label style={styles.label}>Num drivers</label>
+              <input type="number" min="1" value={numDrivers} onChange={e => setNumDrivers(e.target.value)} style={styles.input} />
             </div>
             <div>
-              <label className="text-sm text-gray-600">Route start time</label>
-              <input type="time" value={routeStartTime} onChange={e => setRouteStartTime(e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" />
+              <label style={styles.label}>Route start time</label>
+              <input type="time" value={routeStartTime} onChange={e => setRouteStartTime(e.target.value)} style={styles.input} />
             </div>
             <div>
-              <label className="text-sm text-gray-600">Max hours / driver</label>
-              <input type="number" min="1" value={maxHours} onChange={e => setMaxHours(e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" />
+              <label style={styles.label}>Max hours / driver</label>
+              <input type="number" min="1" value={maxHours} onChange={e => setMaxHours(e.target.value)} style={styles.input} />
             </div>
           </div>
 
-          <div className="mt-4 flex items-center space-x-3">
-            <button onClick={run} className="px-4 py-2 bg-primary text-white rounded-md shadow-sm disabled:opacity-50" disabled={loading}>
+          <div style={styles.flex}>
+            <button
+              onClick={run}
+              style={loading ? { ...styles.button, ...styles.buttonDisabled } : styles.button}
+              disabled={loading}
+            >
               {loading ? 'Running...' : 'Run Simulation'}
             </button>
-            <button onClick={() => { setResult(null); setError(null) }} className="px-4 py-2 border rounded-md">Reset</button>
-            {result?.simulationId && <div className="text-sm text-gray-500">Saved — id: {String(result.simulationId).slice(0,8)}</div>}
+            <button
+              onClick={() => { setResult(null); setError(null) }}
+              style={styles.buttonReset}
+            >
+              Reset
+            </button>
+            {result?.simulationId && <div style={styles.simId}>Saved — id: {String(result.simulationId).slice(0,8)}</div>}
           </div>
 
-          {error && <div className="mt-3 text-sm text-red-600">{error}</div>}
+          {error && <div style={styles.error}>{error}</div>}
         </div>
 
-        <div className="card">
-          <div className="text-sm text-gray-600">Summary</div>
-          <div className="mt-3 text-2xl font-semibold">{toCurrency(totalProfit)}</div>
-          <div className="text-xs text-gray-500 mt-1">Efficiency: {efficiency}%</div>
-          <div className="mt-3 text-sm text-gray-600">On-time / Late</div>
-          <div className="mt-1 text-lg font-medium">{onTime} / {late}</div>
+        <div style={styles.card}>
+          <div style={styles.summaryLabel}>Summary</div>
+          <div style={styles.summaryValue}>{toCurrency(totalProfit)}</div>
+          <div style={styles.summarySub}>Efficiency: {efficiency}%</div>
+          <div style={{ ...styles.summaryLabel, marginTop: '0.75rem' }}>On-time / Late</div>
+          <div style={styles.summaryOnTime}>{onTime} / {late}</div>
         </div>
       </div>
 

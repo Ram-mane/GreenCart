@@ -1,26 +1,105 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 
+const styles = {
+  nav: {
+    background: '#fff',
+    borderBottom: '1px solid #e5e7eb',
+  },
+  container: {
+    maxWidth: 1200,
+    margin: '0 auto',
+    padding: '12px 16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  logoBox: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  logoCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: '50%',
+    background: '#22c55e',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 20,
+  },
+  brand: {
+    fontWeight: 600,
+  },
+  subtitle: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  navLinks: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  link: {
+    padding: '8px 12px',
+    borderRadius: 6,
+    color: '#374151',
+    textDecoration: 'none',
+    transition: 'background 0.2s',
+  },
+  linkActive: {
+    background: '#22c55e',
+    color: '#fff',
+  },
+  linkHover: {
+    background: '#f3f4f6',
+  },
+}
+
 export default function Navbar() {
   return (
-    <nav className="bg-white border-b">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">GC</div>
+    <nav style={styles.nav}>
+      <div style={styles.container}>
+        <div style={styles.logoBox}>
+          <div style={styles.logoCircle}>GC</div>
           <div>
-            <div className="font-semibold">GreenCart</div>
-            <div className="text-xs text-gray-500">Logistics Simulator</div>
+            <div style={styles.brand}>GreenCart</div>
+            <div style={styles.subtitle}>Logistics Simulator</div>
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <NavLink to="/simulation" className={({isActive}) => `px-3 py-2 rounded-md ${isActive ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'}`}>
+        <div style={styles.navLinks}>
+          <NavLink
+            to="/simulation"
+            style={({ isActive }) =>
+              isActive
+                ? { ...styles.link, ...styles.linkActive }
+                : styles.link
+            }
+          >
             Simulation
           </NavLink>
-          <NavLink to="/dashboard" className={({isActive}) => `px-3 py-2 rounded-md ${isActive ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'}`}>
+          <NavLink
+            to="/dashboard"
+            style={({ isActive }) =>
+              isActive
+                ? { ...styles.link, ...styles.linkActive }
+                : styles.link
+            }
+          >
             Dashboard
           </NavLink>
-          <NavLink to="/history" className={({isActive}) => `px-3 py-2 rounded-md ${isActive ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'}`}>
+          <NavLink
+            to="/history"
+            style={({ isActive }) =>
+              isActive
+                ? { ...styles.link, ...styles.linkActive }
+                : styles.link
+            }
+          >
             History
           </NavLink>
         </div>
