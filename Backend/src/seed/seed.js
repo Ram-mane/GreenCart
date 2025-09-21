@@ -1,8 +1,8 @@
 require('dotenv').config();
-import connectDB from '../config/db';
-import { deleteMany, insertMany } from '../models/Driver';
-import { deleteMany as _deleteMany, insertMany as _insertMany } from '../models/Route';
-import { deleteMany as __deleteMany, insertMany as __insertMany } from '../models/Order';
+const connectDB = require('../config/db');
+const Driver = require('../models/Driver');
+const Route = require('../models/Route');
+const Order = require('../models/Order');
 
 const drivers = [
   { name: 'Driver A', past7daysHours: [7,7,8,6,9,9,7] },
@@ -25,18 +25,18 @@ const orders = [
 
 async function seed() {
   await connectDB();
-  await deleteMany({});
-  await _deleteMany({});
-  await __deleteMany({});
+  await Driver.deleteMany({});
+  await Route.deleteMany({});
+  await Order.deleteMany({});
 
-  const createdDrivers = await insertMany(drivers);
-  const createdRoutes = await _insertMany(routes);
+  const createdDrivers = await Driver.insertMany(drivers);
+  const createdRoutes = await Route.insertMany(routes);
 
   // link routes to orders round robin
   for (let i = 0; i < orders.length; i++) {
     orders[i].route = createdRoutes[i % createdRoutes.length]._id;
   }
-  await __insertMany(orders);
+  await Order.insertMany(orders);
 
   console.log('Seed complete');
   process.exit(0);

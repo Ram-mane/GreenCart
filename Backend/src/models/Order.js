@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+const { Schema, model } = require('mongoose');
 
 const OrderSchema = new Schema({
   orderId: { type: String, required: true },
@@ -7,4 +7,4 @@ const OrderSchema = new Schema({
   deliveryTimestamp: { type: Date } // optional for seeded data
 }, { timestamps: true });
 
-export default model('Order', OrderSchema);
+module.exports = model('Order', OrderSchema);

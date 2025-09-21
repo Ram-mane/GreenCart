@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+const { Schema, model } = require('mongoose');
 
 const RouteSchema = new Schema({
   routeId: { type: String, required: true },
@@ -7,4 +7,4 @@ const RouteSchema = new Schema({
   baseTimeMinutes: { type: Number, required: true }
 }, { timestamps: true });
 
-export default model('Route', RouteSchema);
+module.exports = model('Route', RouteSchema);
