@@ -17,19 +17,16 @@ function computeFuelCost(distanceKm, trafficLevel) {
 }
 
 function computeOrderFields(order, route, driver) {
-  const yesterdayHours = (driver.past7daysHours && driver.past7daysHours.length)
-    ? driver.past7daysHours[driver.past7daysHours.length - 1]
-    : 0;
-
+  // Use correct driver and route fields from new schema
+  const weekHours = driver.past_week_hours || [];
+  const yesterdayHours = weekHours.length ? weekHours[weekHours.length - 1] : 0;
   const timeMultiplier = (yesterdayHours > 8) ? 1.3 : 1.0;
-  const simulatedTime = Math.round(route.baseTimeMinutes * timeMultiplier);
-
-  const isLate = simulatedTime > (route.baseTimeMinutes + 10);
+  const simulatedTime = Math.round((route.base_time_min || 0) * timeMultiplier);
+  const isLate = simulatedTime > ((route.base_time_min || 0) + 10);
+  const bonus = (!isLate && order.value_rs > 1000) ? Math.round(order.value_rs * 0.10) : 0;
   const penalty = isLate ? 50 : 0;
-  const bonus = (!isLate && order.valueRs > 1000) ? Math.round(order.valueRs * 0.10) : 0;
-  const fuelCost = computeFuelCost(route.distanceKm, route.trafficLevel);
-  const profit = Math.round(order.valueRs + bonus - penalty - fuelCost);
-
+  const fuelCost = computeFuelCost(route.distance_km || 0, route.traffic_level || 'Low');
+  const profit = Math.round((order.value_rs || 0) + bonus - penalty - fuelCost);
   return { simulatedTime, isLate, penalty, bonus, fuelCost, profit };
 }
 
@@ -52,7 +49,7 @@ async function simulate({ numDrivers = 3, routeStartTime = "09:00", maxHoursPerD
       drivers.push({
         _id: `virtual-${i}`,
         name: `virtual-driver-${i}`,
-        past7daysHours: [0] // no fatigue
+        past_week_hours: [0] // no fatigue
       });
     }
   }
@@ -60,27 +57,17 @@ async function simulate({ numDrivers = 3, routeStartTime = "09:00", maxHoursPerD
   // prepare driver loads (minutes)
   const driverLoads = drivers.map(d => ({ driver: d, loadMinutes: 0 }));
 
-  // map routeId -> route doc
+  // map route_id -> route doc
   const routeMap = {};
-  for (const r of routes) routeMap[r._id.toString()] = r;
+  for (const r of routes) routeMap[r.route_id] = r;
 
-  // If orders reference route by ObjectId, ensure we can get route:
-  // If route saved in order is an ObjectId, we used lean() so it's stored as ObjectId.
-  // We'll try to find by both string id or order.route (if it's already route object)
+  // Link orders to routes using route_id
   const perOrderResults = [];
-
-  // Sort orders by baseTime descending (long deliveries first) — heuristic
-  const orderObjs = await Promise.all(orders.map(async (o) => {
-    let r = null;
-    if (o.route && typeof o.route === 'object' && o.route._id) r = o.route;
-    else {
-      const routeDoc = routes.find(rr => rr._id.toString() === (o.route ? o.route.toString() : ''));
-      r = routeDoc;
-    }
+  const orderObjs = orders.map(o => {
+    const r = routeMap[o.route_id];
     return { order: o, route: r };
-  }));
-
-  orderObjs.sort((a, b) => (b.route?.baseTimeMinutes || 0) - (a.route?.baseTimeMinutes || 0));
+  });
+  orderObjs.sort((a, b) => (b.route?.base_time_min || 0) - (a.route?.base_time_min || 0));
 
   for (const { order, route } of orderObjs) {
     if (!route) {
@@ -100,9 +87,10 @@ async function simulate({ numDrivers = 3, routeStartTime = "09:00", maxHoursPerD
     let chosen = null;
     for (let i = 0; i < driverLoads.length; i++) {
       const d = driverLoads[i].driver;
-      const yesterdayHours = (d.past7daysHours && d.past7daysHours.length) ? d.past7daysHours[d.past7daysHours.length - 1] : 0;
+      const weekHours = d.past_week_hours || [];
+      const yesterdayHours = weekHours.length ? weekHours[weekHours.length - 1] : 0;
       const timeMultiplier = (yesterdayHours > 8) ? 1.3 : 1.0;
-      const simulatedTime = Math.round(route.baseTimeMinutes * timeMultiplier);
+      const simulatedTime = Math.round((route.base_time_min || 0) * timeMultiplier);
       const newLoad = driverLoads[i].loadMinutes + simulatedTime;
       // prefer drivers that do not exceed allowed max (Hmax * 60)
       const limit = maxHoursPerDriver * 60;
@@ -116,15 +104,23 @@ async function simulate({ numDrivers = 3, routeStartTime = "09:00", maxHoursPerD
     }
 
     // assign to chosen
+    if (!chosen) {
+      // Mark as unassigned instead of throwing
+      perOrderResults.push({
+        order_id: order.order_id,
+        error: 'No suitable driver found'
+      });
+      continue;
+    }
     driverLoads[bestIdx].loadMinutes += chosen.simulatedTime;
 
     const driverDoc = driverLoads[bestIdx].driver;
     const computed = computeOrderFields(order, route, driverDoc);
 
     perOrderResults.push({
-      orderId: order.orderId,
-      driverId: driverDoc._id,
-      routeId: route._id,
+      order_id: order.order_id,
+      driver_id: driverDoc._id,
+      route_id: route.route_id,
       simulatedTime: computed.simulatedTime,
       isLate: computed.isLate,
       penalty: computed.penalty,
@@ -132,6 +128,7 @@ async function simulate({ numDrivers = 3, routeStartTime = "09:00", maxHoursPerD
       fuelCost: computed.fuelCost,
       profit: computed.profit
     });
+    console.log(`Order ${order.order_id}: fuelCost = ${computed.fuelCost}`);
   }
 
   // KPIs

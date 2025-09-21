@@ -1,7 +1,7 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
-import Dashboard from './pages/Dashboard'
+import Dashboard from './components/Dashboard'
 import Simulation from './pages/Simulation'
 import SimulationsHistory from './pages/SimulationsHistory'
 
