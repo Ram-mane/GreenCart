@@ -119,7 +119,7 @@ async function simulate({ numDrivers = 3, routeStartTime = "09:00", maxHoursPerD
 
     perOrderResults.push({
       order_id: order.order_id,
-      driver_id: driverDoc._id,
+      driver_name: driverDoc.name,
       route_id: route.route_id,
       simulatedTime: computed.simulatedTime,
       isLate: computed.isLate,
