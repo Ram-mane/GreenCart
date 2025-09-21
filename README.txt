@@ -7,7 +7,7 @@ GreenCart is a logistics simulation and analytics platform. It allows users to s
 - **Frontend:** React, Vite, Tailwind CSS, Chart.js
 - **Backend:** Node.js, Express, MongoDB, Mongoose
 - **Testing:** Jest
-- **Deployment:** Vercel (frontend), Render (backend)
+- **Deployment:** Netlify (frontend), Render (backend)
 
 ## Setup Instructions
 
@@ -72,14 +72,27 @@ GreenCart is a logistics simulation and analytics platform. It allows users to s
   2. Set environment variables (`MONGODB_URI`, `PORT`).
   3. Deploy the backend service.
 
-### Frontend (Vercel)
-- Platform: [Vercel](https://vercel.com)
-- URL: https://green-cart-git-main-ram-manes-projects.vercel.app
+### Frontend (Netlify)
+- Platform: [Netlify](https://netlify.com)
 - Steps:
-  1. Import GitHub repo into Vercel.
-  2. Set project root to `Frontend/GreenCart`.
-  3. Set environment variable `VITE_API_URL` to backend URL.
-  4. Deploy.
+  1. Install Netlify CLI globally:
+    ```bash
+    npm install -g netlify-cli
+    ```
+  2. Login to Netlify:
+    ```bash
+    netlify login
+    ```
+  3. Build the frontend:
+    ```bash
+    npm run build
+    ```
+  4. Deploy the `dist` folder to Netlify:
+    ```bash
+    netlify deploy --prod --dir=dist
+    ```
+  5. Set the environment variable `VITE_API_URL` in the Netlify dashboard to your backend URL (e.g., https://greencart-ffm1.onrender.com).
+  6. After deployment, Netlify will provide a live URL for your frontend.
 
 ## API Documentation
 
